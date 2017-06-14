@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^MathQuestion/', include('MathQuestion.urls')),
+    url(r'^OpenTrivia/', include('OpenTrivia.urls'))
 ]
