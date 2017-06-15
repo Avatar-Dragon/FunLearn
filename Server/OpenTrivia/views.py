@@ -12,41 +12,89 @@ def index(request):
     # return HttpResponse(simplejson.dumps(data, ensure_accii=False))
     return JsonResponse(data)
 
-def getQuestion(request):
-    request.encoding = 'utf-8'
-    # try:
-    #     difficulty = request.GET['difficulty']
-    #     questuonType = request.GET['questuonType']
-    # except Exception as e:
-    #     return JsonResponse({"information": "failure for request problem"})
 
-    questionUrl = "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple"
+
+def getQuestion(request):
+    return getQuestionByAPI(request)
+
+
+
+# 关于getQuestionByAPI的参数：
+
+# category：
+# "General Knowledge"                        to     9
+# "Entertainment: Books"                     to    10
+# "Entertainment: Film"                      to    11
+# "Entertainment: Music"                     to    12
+# "Entertainment: Musicals & Theatres"       to    13
+# "Entertainment: Television"                to    14
+# "Entertainment: Video Games"               to    15
+# "Entertainment: Board Games"               to    16
+# "Science & Nature"                         to    17
+# "Science: Computers"                       to    18
+# "Science: Mathematics"                     to    19
+# "Mythology"                                to    20
+# "Sports"                                   to    21
+# "Geography"                                to    22
+# "History"                                  to    23
+# "Politics"                                 to    24
+# "Art"                                      to    25
+# "Celebrities"                              to    26
+# "Animals"                                  to    27
+# "Vehicles"                                 to    28
+# "Entertainment: Comics"                    to    29
+# "Science: Gadgets"                         to    30
+# "Entertainment: Japanese Anime & Manga"    to    31
+# "Entertainment: Cartoon & Animations"      to    32
+
+# difficulty:
+# medium
+# easy
+# hard
+
+# type:
+# multiple
+# boolean
+
+
+def getQuestionByAPI(request):
+    request.encoding = 'utf-8'
+    resultJsonData = {}
+    try:
+        difficulty = request.GET['difficulty']
+        questuonType = request.GET['questuonType']
+        category = request.GET['category']
+        amount = request.GET['amount']
+    except Exception as e:
+        return JsonResponse({"information": "failure for get problem"})
+
+    questionUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=" + questuonType
     print(questionUrl)
 
     try:
         oriData = urllib.request.urlopen(questionUrl).read()
-
     except urllib.request.HTTPError as e:
         print(e.code)
         # print(e.read())
-        return JsonResponse({"information": "failure for http"})
+        resultJsonData["response_code"] = 2
+        resultJsonData["results"] = []
+        return JsonResponse(resultJsonData)
     except urllib.request.URLError as e:
         print(str(e))
-        return JsonResponse({"information": "failure for url"})
-
-    # checkUrl = "http://www5a.wolframalpha.com/input/wpg/checkanswer.jsp?attempt=1&difficulty=Beginner&load=true&problemID=MSP30821f17b43d8fie9ab40000452beg427da501bg&query=10&s=49&type=InputField"
+        resultJsonData["response_code"] = 3
+        resultJsonData["results"] = []
+        return JsonResponse(resultJsonData)
 
     # print(oriData)
-    jsonData = json.loads(oriData)
+    jsonHttpData = json.loads(oriData)
     html_parser = html.parser.HTMLParser()
-    unescaped = html_parser.unescape(jsonData)
-    # return JsonResponse(jsonData)
+    oriJsonData = html_parser.unescape(jsonHttpData)
+    print(oriJsonData['response_code'])
 
-    # finalData = {
-    #     'sessionID': jsonData['sessionID'],
-    #     'problem_id': jsonData['problems'][0]['problem_id'],
-    #     'problem_image_url': jsonData['problems'][0]['problem_image'],
-    #     'string_question': jsonData['problems'][0]['string_question']
-    # }
+    resultJsonData = oriJsonData
 
-    return JsonResponse(unescaped)
+    if (oriJsonData['response_code'] == 0):
+        print("length: " + str(len(oriJsonData['results'])))
+        return JsonResponse(resultJsonData)
+    else:
+        return JsonResponse(resultJsonData)
