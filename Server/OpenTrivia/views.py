@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 import urllib.request
 from urllib.parse import urlencode
@@ -56,45 +55,62 @@ def getQuestion(request):
 # multiple
 # boolean
 
+# response_code
+# 0       正常访问
+# 1       无法满足request，比如无法提供需要的题目
+# 2       参数不足或者参数格式错误
+# 3       服务器内部出错，访问url出现HTTPError
+# 4       服务器内部出错，访问url出现URLError
+# 5       应该使用GET方法
+# 6       应该使用POST方法
 
 def getQuestionByAPI(request):
     request.encoding = 'utf-8'
     resultJsonData = {}
-    try:
-        difficulty = request.GET['difficulty']
-        questuonType = request.GET['questuonType']
-        category = request.GET['category']
-        amount = request.GET['amount']
-    except Exception as e:
-        return JsonResponse({"information": "failure for get problem"})
+    if (request.method == 'GET'):
+        try:
+            difficulty = request.GET['difficulty']
+            questuonType = request.GET['questuonType']
+            category = request.GET['category']
+            amount = request.GET['amount']
+        except Exception as e:
+            resultJsonData["response_code"] = 2
+            resultJsonData["results"] = []
+            return JsonResponse(resultJsonData)
 
-    questionUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=" + questuonType
-    print(questionUrl)
+        questionUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=" + questuonType
+        print(questionUrl)
 
-    try:
-        oriData = urllib.request.urlopen(questionUrl).read()
-    except urllib.request.HTTPError as e:
-        print(e.code)
-        # print(e.read())
-        resultJsonData["response_code"] = 2
-        resultJsonData["results"] = []
-        return JsonResponse(resultJsonData)
-    except urllib.request.URLError as e:
-        print(str(e))
-        resultJsonData["response_code"] = 3
-        resultJsonData["results"] = []
-        return JsonResponse(resultJsonData)
+        try:
+            oriData = urllib.request.urlopen(questionUrl).read()
+        except urllib.request.HTTPError as e:
+            print(e.code)
+            # print(e.read())
+            resultJsonData["response_code"] = 3
+            resultJsonData["results"] = []
+            return JsonResponse(resultJsonData)
+        except urllib.request.URLError as e:
+            print(str(e))
+            resultJsonData["response_code"] = 4
+            resultJsonData["results"] = []
+            return JsonResponse(resultJsonData)
 
-    # print(oriData)
-    jsonHttpData = json.loads(oriData)
-    html_parser = html.parser.HTMLParser()
-    oriJsonData = html_parser.unescape(jsonHttpData)
-    print(oriJsonData['response_code'])
+        # print(oriData)
+        jsonHttpData = json.loads(oriData)
+        html_parser = html.parser.HTMLParser()
+        oriJsonData = html_parser.unescape(jsonHttpData)
+        print(oriJsonData['response_code'])
 
-    resultJsonData = oriJsonData
+        resultJsonData = oriJsonData
 
-    if (oriJsonData['response_code'] == 0):
-        print("length: " + str(len(oriJsonData['results'])))
-        return JsonResponse(resultJsonData)
+        if (oriJsonData['response_code'] == 0):
+            print("length: " + str(len(oriJsonData['results'])))
+            return JsonResponse(resultJsonData)
+        else:
+            return JsonResponse(resultJsonData)
+
     else:
+        resultJsonData["response_code"] = 5
+        resultJsonData["results"] = []
         return JsonResponse(resultJsonData)
+    
