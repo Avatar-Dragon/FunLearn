@@ -12,7 +12,7 @@ def index(request):
     return JsonResponse(data)
 
 
-
+# 获得一些question
 def getQuestion(request):
     return getQuestionByAPI(request)
 
@@ -64,6 +64,7 @@ def getQuestion(request):
 # 5       应该使用GET方法
 # 6       应该使用POST方法
 
+# 通过访问https://opentdb.com/api.php提供的API来得到相应的question数据
 def getQuestionByAPI(request):
     request.encoding = 'utf-8'
     resultJsonData = {}
@@ -78,6 +79,7 @@ def getQuestionByAPI(request):
             resultJsonData["results"] = []
             return JsonResponse(resultJsonData)
 
+        # 将参数加入url
         questionUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=" + questuonType
         print(questionUrl)
 
@@ -96,6 +98,7 @@ def getQuestionByAPI(request):
             return JsonResponse(resultJsonData)
 
         # print(oriData)
+        # url返回的数据是html格式，需要将其转换为Json（字典）格式
         jsonHttpData = json.loads(oriData)
         html_parser = html.parser.HTMLParser()
         oriJsonData = html_parser.unescape(jsonHttpData)
