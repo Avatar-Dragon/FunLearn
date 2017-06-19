@@ -12,6 +12,7 @@ def index(request):
     return JsonResponse(data)
 
 
+# 功能：用户登录
 # response_code
 # 0       正常访问
 # 1       
@@ -20,7 +21,6 @@ def index(request):
 # 4       密码错误
 # 5       应该使用GET方法
 # 6       应该使用POST方法
-
 @csrf_exempt
 def login(request):
     request.encoding = 'utf-8'
@@ -37,16 +37,6 @@ def login(request):
         result = isUserAndPasswordCorrect(username, password)
         resultJsonData["response_code"] = result["response_code"]
         return JsonResponse(resultJsonData)
-        # users = findUserByName(username)
-        # if (len(users) == 0):
-        #     resultJsonData["response_code"] = 3
-        #     return JsonResponse(resultJsonData)
-
-        # if (isPasswordCorrect(users[0], password)):
-        #     resultJsonData["response_code"] = 0
-        # else:
-        #     resultJsonData["response_code"] = 4
-        # return JsonResponse(resultJsonData)
 
     else:
         resultJsonData["response_code"] = 6
@@ -54,7 +44,7 @@ def login(request):
 
 
 
-
+# 功能：用户注册
 # response_code
 # 0       正常访问
 # 1       
@@ -63,7 +53,6 @@ def login(request):
 # 4       
 # 5       应该使用GET方法
 # 6       应该使用POST方法
-
 @csrf_exempt
 def register(request):
     request.encoding = 'utf-8'
@@ -82,9 +71,11 @@ def register(request):
             resultJsonData["response_code"] = 3
             return JsonResponse(resultJsonData)
 
+        # 数据库应该保存密码的hash结果，而不是密码原文
         hashPassword = getHashPassword(password)
         print("hashPassword: " + hashPassword)
 
+        # 将新用户记录到数据库中
         newUser = User(username=username, password=hashPassword)
         newUser.save()
         resultJsonData["response_code"] = 0
@@ -94,19 +85,21 @@ def register(request):
         resultJsonData["response_code"] = 6
         return JsonResponse(resultJsonData)
 
-
+# 通过用户名查找用户
 def findUserByName(username):
     user = list(User.objects.filter(username=username))
     print("userNumber: " + str(len(user)))
     return user
 
+# 检查密码是否正确
 def isPasswordCorrect(user, password):
     return check_password(password, user.password)
 
+# 获得hash密码
 def getHashPassword(password):
     return make_password(password)
 
-
+# 验证用户，检查用户名和密码是否同时存在并正确
 # response_code
 # 0       用户存在
 # 3       用户不存在
@@ -122,7 +115,7 @@ def isUserAndPasswordCorrect(username, password):
 
 
 
-
+# 查询用户的总得分
 # response_code
 # 0       查询成功
 # 1       
@@ -131,7 +124,6 @@ def isUserAndPasswordCorrect(username, password):
 # 4       密码错误
 # 5       应该使用GET方法
 # 6       应该使用POST方法
-
 @csrf_exempt
 def getScore(request):
     request.encoding = 'utf-8'
@@ -145,6 +137,7 @@ def getScore(request):
             resultJsonData["response_code"] = 2
             return JsonResponse(resultJsonData)
 
+        # 验证用户
         result = isUserAndPasswordCorrect(username, password)
         if (result["response_code"] != 0):
             resultJsonData["response_code"] = result["response_code"]
@@ -161,7 +154,7 @@ def getScore(request):
 
 
 
-
+# 更新用户的总得分
 # response_code
 # 0       更新成功
 # 1       newScore不是整数
@@ -171,7 +164,6 @@ def getScore(request):
 # 5       应该使用GET方法
 # 6       应该使用POST方法
 # 7       更新失败，newScore没有超过数据库中的分数
-
 @csrf_exempt
 def updateScore(request):
     request.encoding = 'utf-8'
@@ -197,6 +189,7 @@ def updateScore(request):
             resultJsonData["response_code"] = 1
             return JsonResponse(resultJsonData)
 
+        # 只有新的分数超过旧分数，才会更新分数
         if (result["user"].score < newScore):
             result["user"].score = newScore
             result["user"].save()
