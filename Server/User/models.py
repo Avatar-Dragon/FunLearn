@@ -13,3 +13,5 @@ class User(models.Model):
     maxContinuousCorrect = models.IntegerField(default=0)
     phone = models.CharField(max_length=11, default="")
     email = models.EmailField(default='')
+    correctNumber = models.IntegerField(default=0)
+    wrongNumber = models.IntegerField(default=0)
