@@ -4,5 +4,5 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^getQuestion$', views.getQuestion, name='getQuestion')
+    url(r'^getQuestion$', views.getQuestionInDatabase, name='getQuestion')
 ]
