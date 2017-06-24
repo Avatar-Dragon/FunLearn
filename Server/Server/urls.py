@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^MathQuestion/', include('MathQuestion.urls')),
     url(r'^OpenTrivia/', include('OpenTrivia.urls')),
-    url(r'^User/', include('User.urls'))
+    url(r'^User/', include('User.urls')),
+    url(r'^SubmitQuestion/', include('SubmitQuestion.urls')),
 ]
