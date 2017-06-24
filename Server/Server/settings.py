@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'MathQuestion',
     'OpenTrivia',
     'User',
+    'SubmitQuestion',
     'werkzeug_debugger_runserver',
     'django_extensions'
 ]
