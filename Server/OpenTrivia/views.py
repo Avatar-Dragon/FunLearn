@@ -100,7 +100,7 @@ def getQuestionByAPI(request):
     if (request.method == 'GET'):
         try:
             difficulty = request.GET['difficulty']
-            questuonType = request.GET['questuonType']
+            questionType = request.GET['questionType']
             category = request.GET['category']
             amount = request.GET['amount']
         except Exception as e:
@@ -109,7 +109,7 @@ def getQuestionByAPI(request):
             return JsonResponse(resultJsonData)
 
         # 将参数加入url
-        questionUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=" + questuonType
+        questionUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + category + "&difficulty=" + difficulty + "&type=" + questionType
         print(questionUrl)
 
         try:
@@ -152,8 +152,8 @@ def getQuestionByAPI(request):
 # 0       正常访问
 # 1       无法满足request，比如无法提供需要的题目
 # 2       参数不足或者参数格式错误
-# 3       服务器内部出错，访问url出现HTTPError
-# 4       服务器内部出错，访问url出现URLError
+# 3       
+# 4       
 # 5       应该使用GET方法
 # 6       应该使用POST方法
 
@@ -164,7 +164,7 @@ def getQuestionInDatabase(request):
     if (request.method == 'GET'):
         try:
             difficulty = request.GET['difficulty']
-            questuonType = request.GET['questuonType']
+            questionType = request.GET['questionType']
             category = request.GET['category']
             amount = request.GET['amount']
         except Exception as e:
@@ -180,9 +180,9 @@ def getQuestionInDatabase(request):
             resultJsonData["results"] = []
             return JsonResponse(resultJsonData)
 
-        if (questuonType == "multiple"):
+        if (questionType == "multiple"):
             return JsonResponse(getSomeMultipleQuestionsRandom(difficulty, category, amount))
-        elif (questuonType == "boolean"):
+        elif (questionType == "boolean"):
             return JsonResponse(getSomeBooleanQuestionsRandom(difficulty, category, amount))
         else:
             resultJsonData["response_code"] = 2
@@ -193,7 +193,12 @@ def getQuestionInDatabase(request):
         resultJsonData["results"] = []
         return JsonResponse(resultJsonData)
 
-
+# 根据codeNumber获得相应的category文本
+def getCategoryByCode(codeNumber):
+    for i in categoryMap:
+        if (categoryMap[i] == codeNumber):
+            return i
+    return "NULL"
 
 
 # 将选择题数据从数据库格式转化为下列格式
@@ -211,10 +216,10 @@ def convertMultipleQuestions(item):
 # 随机获得amount条选择题
 def getSomeMultipleQuestionsRandom(difficulty, category, amount):
     results = []
-    for i in categoryMap:
-        if (categoryMap[i] == category):
-            category = i
-            break
+    category = getCategoryByCode(category)
+    if (category == "NULL"):
+        print("category error")
+        return {"response_code": 2}
     idList = list(MultipleQuestion.objects.values("id").filter(difficulty=difficulty, category=category))
     # print(idList)
     print("multipleQuestion length: " + str(len(idList)) + " amount: " + str(amount))
@@ -248,10 +253,10 @@ def convertBooleanQuestions(item):
 # 随机获得amount条判断题
 def getSomeBooleanQuestionsRandom(difficulty, category, amount):
     results = []
-    for i in categoryMap:
-        if (categoryMap[i] == category):
-            category = i
-            break
+    category = getCategoryByCode(category)
+    if (category == "NULL"):
+        print("category error")
+        return {"response_code": 2}
     idList = list(BooleanQuestion.objects.values("id").filter(difficulty=difficulty, category=category))
     # print(idList)
     print("booleanQuestion length: " + str(len(idList)) + " amount: " + str(amount))
