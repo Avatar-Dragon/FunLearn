@@ -30,6 +30,7 @@
             android:textSize="16sp"
             />
         <TextView
+            android:text="General Knowledge"
   android:id="@+id/category"
             android:textSize="16sp"
             />
@@ -42,6 +43,7 @@
             <TextView
                android:id="@+id/difficulty"
                 android:textSize="16sp"
+                android:text="easy"
                 />
         </TableRow>
         <TableRow>
@@ -52,13 +54,14 @@
             <TextView
                 android:textSize="16sp"
                 android:id="@+id/question_type"
+                android:text="boolean"
                 />
         </TableRow>
     </TableLayout>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:id="@+id/verify"
         android:text="Verify"
         android:textAllCaps="false"
         android:layout_gravity="center"

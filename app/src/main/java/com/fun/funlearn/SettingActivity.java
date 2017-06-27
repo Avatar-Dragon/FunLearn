@@ -1,11 +1,13 @@
 package com.fun.funlearn;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,12 +25,13 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityCollector.addActivity(this);
         setContentView(R.layout.activity_setting);
         mContext = SettingActivity.this;
         exlist_lol = (ExpandableListView) findViewById(R.id.exlist_lol);
         final TextView category = (TextView) findViewById(R.id.category);
         final TextView difficulty = (TextView) findViewById(R.id.difficulty);
-        final TextView question_typy = (TextView) findViewById(R.id.question_type);
+        final TextView question_type = (TextView) findViewById(R.id.question_type);
         //数据准备
         gData = new ArrayList<Group>();
         iData = new ArrayList<ArrayList<Item>>();
@@ -51,7 +54,7 @@ public class SettingActivity extends AppCompatActivity {
         iData.add(lData);
         //Difficulty
         lData = new ArrayList<Item>();
-        lData.add(new Item(R.mipmap.iv_lol_icon1, "mediu"));
+        lData.add(new Item(R.mipmap.iv_lol_icon1, "medium"));
         lData.add(new Item(R.mipmap.iv_lol_icon7, "easy"));
         lData.add(new Item(R.mipmap.iv_lol_icon8, "hard"));
         iData.add(lData);
@@ -64,7 +67,7 @@ public class SettingActivity extends AppCompatActivity {
 
         myAdapter = new MyBaseExpandableListAdapter(gData,iData,mContext);
         exlist_lol.setAdapter(myAdapter);
-
+        Button button = (Button) findViewById(R.id.verify);
 
         //为列表设置点击事件
         exlist_lol.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -79,13 +82,41 @@ public class SettingActivity extends AppCompatActivity {
                         difficulty.setText(iData.get(groupPosition).get(childPosition).getiName());
                         break;
                     case 2:
-                        question_typy.setText(iData.get(groupPosition).get(childPosition).getiName());
+                        question_type.setText(iData.get(groupPosition).get(childPosition).getiName());
                         break;
                 }
                 return true;
             }
         });
-
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingActivity.this, MainActivity.class);
+                Bundle bundle = new Bundle();//该类用作携带数据
+                bundle.putString("difficulty", difficulty.getText().toString());
+                bundle.putString("question_type", question_type.getText().toString());
+                int category = 9;
+                switch (difficulty.getText().toString()) {
+                    case "General Knowledge":
+                        category = 9;
+                        break;
+                    case "Entertainment: Books":
+                        category = 10;
+                        break;
+                    case "Entertainment: Film":
+                        category = 11;
+                        break;
+                    case "Entertainment: Music":
+                        category = 12;
+                        break;
+                }
+                bundle.putInt("category", category);
+                intent.putExtras(bundle);//附带上额外的数据
+//                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(0);
+                startActivity(intent);
+            }
+        });
 
     }
 }
